@@ -1,0 +1,36 @@
+flowchart LR
+    Paciente((Paciente))
+    Representante((Representante))
+    Profesional((Profesional))
+    Recepcion((Recepcion))
+    Aseguradora((Aseguradora))
+    Auditor((Auditor / DPO))
+
+    subgraph SISTEMA [Plataforma de consultas seguras]
+        UC1([Buscar especialista y horario])
+        UC2([Reservar cita])
+        UC3([Cancelar cita])
+        UC4([Verificar cobertura y copago])
+        UC5([Pagar copago])
+        UC6([Vincular dependiente])
+        UC7([Registrar nota de atencion])
+        UC8([Ver citas del establecimiento])
+        UC9([Responder solicitud de cobertura])
+        UC10([Consultar auditoria])
+        UC11([Gestionar consentimientos])
+    end
+
+    Paciente --> UC1
+    Paciente --> UC2
+    Paciente --> UC3
+    Paciente --> UC5
+    Paciente --> UC11
+    Representante --> UC6
+    Representante --> UC2
+    UC2 -. incluye .-> UC4
+    UC2 -. incluye .-> UC5
+    Profesional --> UC7
+    Recepcion --> UC8
+    Recepcion --> UC3
+    Aseguradora --> UC9
+    Auditor --> UC10

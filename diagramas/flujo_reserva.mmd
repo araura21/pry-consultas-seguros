@@ -1,0 +1,20 @@
+flowchart TD
+    A([Paciente busca especialista y horario]) --> B[Selecciona horario libre]
+    B --> C{Usa seguro?}
+    C -- No --> D[Copago = tarifa particular]
+    C -- Si --> E[Consulta elegibilidad a la aseguradora]
+    E --> F{Cubierto?}
+    F -- No --> G[Informa al paciente y ofrece pago particular]
+    F -- Si --> H[Servidor calcula copago]
+    D --> I[Bloquea horario de forma atomica]
+    G --> I
+    H --> I
+    I --> J{Horario aun libre?}
+    J -- No --> K[Error 409: horario no disponible]
+    J -- Si --> L[Crea intento de pago en pasarela]
+    L --> M[Paciente paga en pagina de la pasarela]
+    M --> N{Webhook firmado valido?}
+    N -- No --> O[Rechaza y registra evento]
+    N -- Si --> P[Confirma cita y pago]
+    P --> Q[Registra auditoria]
+    Q --> R[Notificacion generica al paciente]

@@ -1,0 +1,39 @@
+flowchart TB
+    subgraph Clientes
+        WEB[Web responsive / PWA]
+    end
+
+    subgraph Borde [Borde]
+        PROXY[Caddy: TLS, cabeceras, proxy]
+    end
+
+    subgraph Aplicacion [Aplicacion]
+        FE[Frontend Angular]
+        API[API Express 5 x2]
+        SESS[(Sesiones en PostgreSQL)]
+        WORK[Worker: notificaciones y retencion]
+    end
+
+    subgraph Datos [Datos]
+        PG[(PostgreSQL 16)]
+        LOG[(audit_log solo insercion)]
+        BACKUP[(Respaldos cifrados)]
+    end
+
+    subgraph Externos [Servicios externos simulados]
+        INSMOCK[insurer-mock]
+        PAYMOCK[payment-mock]
+        MAIL[Proveedor de mensajes]
+    end
+
+    WEB --> PROXY
+    PROXY --> FE
+    PROXY --> API
+    API --> SESS
+    API --> PG
+    API --> LOG
+    WORK --> PG
+    WORK --> MAIL
+    API <--> INSMOCK
+    API <--> PAYMOCK
+    PG --> BACKUP

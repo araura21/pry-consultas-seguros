@@ -1,0 +1,43 @@
+flowchart LR
+    subgraph TZ0 [Zona 0: Internet no confiable]
+        ATK((Atacante externo))
+        PAC((Paciente))
+    end
+
+    subgraph TZ1 [Zona 1: Borde]
+        WAF[WAF / CDN y rate limit]
+        CADDY[Proxy inverso y TLS]
+    end
+
+    subgraph TZ2 [Zona 2: Aplicacion]
+        FE[Frontend Angular]
+        API[API: authN, authZ, validacion]
+        WRK[Worker de notificaciones]
+    end
+
+    subgraph TZ3 [Zona 3: Datos]
+        DB[(Base de datos cifrada por campo)]
+        AUD[(Auditoria solo insercion)]
+        BK[(Respaldos fuera del sitio)]
+    end
+
+    subgraph TZ4 [Zona 4: Terceros]
+        INS[Aseguradora]
+        PAY[Pasarela de pago PCI DSS]
+        MSG[Proveedor de mensajes]
+    end
+
+    ATK -- "R11 IDOR / R12 credential stuffing" --> WAF
+    PAC -- "R03 sesion robada" --> WAF
+    WAF --> CADDY --> FE
+    CADDY --> API
+    API -- "C: autorizacion por recurso, sesion segura" --> DB
+    API -- "C: cifrado AES-GCM, minimizacion" --> DB
+    API -- "C: solo insercion, cadena de hash" --> AUD
+    DB -. "C: respaldo cifrado" .-> BK
+    API -- "R13 spoofing / replay" --> INS
+    INS -. "C: mTLS, firma HMAC, nonce" .-> API
+    API -- "R04 datos de tarjeta" --> PAY
+    PAY -. "C: webhook firmado, sin PAN en BD" .-> API
+    WRK -- "R06 contenido sensible en notificacion" --> MSG
+    MSG -. "C: plantilla generica" .-> PAC
